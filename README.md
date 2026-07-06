@@ -1,103 +1,57 @@
-# Kruskal's Minimum Spanning Tree - Windows Forms Application
-## Project 15 | C# | Greedy Algorithm
+﻿# DAA — Design & Analysis of Algorithms
+
+[![C#](https://img.shields.io/badge/C%23-11.0-239120?logo=csharp&logoColor=white)](https://learn.microsoft.com/dotnet/csharp)
+[![.NET](https://img.shields.io/badge/.NET-6.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com)
+[![License](https://img.shields.io/badge/License-MIT-success)](LICENSE)
+
+A collection of **Algorithm Design & Analysis** projects with interactive visualizations in C# .NET.
 
 ---
 
-## Overview
-This Windows Forms application allows users to interactively build a **weighted directed graph** and apply **Kruskal's Algorithm** (Greedy approach) to find the **Minimum Spanning Tree (MST)**.
+## Project: Kruskal's Minimum Spanning Tree
 
----
+Interactive **Windows Forms** application demonstrating **Kruskal's Greedy Algorithm** for finding the Minimum Spanning Tree (MST) using **Union-Find (Disjoint Set Union)**.
 
-## Features
-- **Interactive Graph Drawing** — Click on the canvas to place named nodes (A, B, C, ...)
-- **Weighted Directed Edges** — Click two nodes to add a directed edge with a custom weight/cost
-- **Kruskal's MST Algorithm** — Finds the MST using Union-Find (Disjoint Set Union) data structure
-- **Visual Highlighting** — MST edges are highlighted in green; non-MST edges remain grey
-- **Edge Weight Labels** — All edge costs shown on the canvas
-- **Edge List Panel** — Side panel shows all edges (or MST edges after computation)
-- **Total MST Cost** — Displayed after running the algorithm
-- **Delete Nodes** — Right-click any node to remove it along with its edges
-- **Clear All** — Wipe the canvas and start fresh
+### Features
+- Interactive graph drawing — click to place nodes and add weighted edges
+- Kruskal's MST with visual highlighting (green edges = MST)
+- Union-Find with path compression & union by rank
+- Real-time edge list panel with total MST cost
+- Node deletion, edge weight dialogs, canvas reset
 
----
+### Complexity
+| Operation | Time |
+|-----------|------|
+| Edge sorting | O(E log E) |
+| Union-Find operations | O(E α(V)) ≈ O(E) |
+| **Overall** | **O(E log E)** |
 
-## Requirements
-- **Visual Studio 2022** (recommended) or VS Code with C# extension
-- **.NET 6.0 SDK** or later
-- **Windows OS** (Windows Forms is Windows-only)
+### Quick Start
+`ash
+git clone https://github.com/Huzaifa-zuberi/DAA.git
+cd DAA
+dotnet run --project src
+`
 
----
+### Test Case
+`
+Nodes: A, B, C, D, E
+Edges: A→B(4), A→C(2), B→C(1), B→D(5), C→D(8), C→E(10), D→E(2)
 
-## How to Run
-
-### Option 1: Visual Studio
-1. Open `KruskalMST.sln` in Visual Studio 2022
-2. Press `F5` or click **Start** to build and run
-
-### Option 2: .NET CLI
-```bash
-cd KruskalMST
-dotnet run
-```
-
----
-
-## How to Use
-
-| Action | How |
-|--------|-----|
-| **Add Node** | Click "Add Node" button, then click anywhere on canvas |
-| **Add Edge** | Click "Add Edge" button, click source node, then target node. Enter weight in dialog |
-| **Run MST** | Click "Run Kruskal's" — MST edges highlighted in green |
-| **Reset View** | Click "Reset View" to clear MST highlighting |
-| **Delete Node** | Right-click any node to remove it (and its edges) |
-| **Clear All** | Click "Clear All" to wipe the entire graph |
-
----
-
-## Algorithm Details
-
-### Kruskal's Algorithm (Greedy Approach)
-1. **Sort** all edges by weight in ascending order
-2. **Initialize** Union-Find structure (each node is its own component)
-3. **Iterate** through sorted edges:
-   - If adding the edge does NOT create a cycle (source and target in different components) → **add to MST**
-   - Otherwise, **skip** the edge
-4. Stop when MST has `(V - 1)` edges where V = number of vertices
-
-### Union-Find (Disjoint Set Union)
-- Uses **path compression** and **union by rank** for near O(1) operations
-- `Find(x)` → returns root of x's component
-- `Union(a, b)` → merges components of a and b
-
-### Time Complexity
-- Sorting: O(E log E)
-- Union-Find: O(E α(V)) ≈ O(E) with path compression
-- **Overall: O(E log E)**
+MST: B→C(1), A→C(2), D→E(2), A→B(4)
+Total Cost: 9
+`
 
 ---
 
 ## File Structure
-```
-KruskalMST/
-├── KruskalMST.sln          # Visual Studio solution file
-└── KruskalMST/
-    ├── KruskalMST.csproj   # Project file (.NET 6 WinForms)
-    ├── Program.cs           # Entry point
-    ├── Form1.cs             # Main form (UI + drawing + algorithm)
-    ├── Form1.Designer.cs    # Designer-generated code
-    ├── Node.cs              # Node model class
-    ├── Edge.cs              # Edge model class
-    └── EdgeWeightDialog.cs  # Dialog for entering edge weight
-```
+`
+DAA/
+├── src/           # C# source code (.NET 6 WinForms)
+├── docs/          # Algorithm documentation
+├── KruskalMST.sln # Visual Studio solution
+└── README.md      # Project documentation
+`
 
----
-
-## Sample Test Case
-
-Try this graph:
-- Nodes: A, B, C, D, E
-- Edges: A→B(4), A→C(2), B→C(1), B→D(5), C→D(8), C→E(10), D→E(2)
-
-**Expected MST edges:** B→C(1), A→C(2), D→E(2), A→B(4)  
-**Total MST Cost: 9**
+## License
+MIT © 2026 Huzaifa Zuberi

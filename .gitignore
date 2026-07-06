@@ -1,12 +1,13 @@
 bin/
 obj/
-*.user
-*.suo
-.vs/
 *.dll
 *.exe
 *.pdb
 *.cache
-*.assets.cache
+*.suo
+*.user
+.vs/
 .DS_Store
 Thumbs.db
+.idea/
+.vscode/
