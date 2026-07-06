@@ -1,8 +1,13 @@
 ﻿# DAA — Design & Analysis of Algorithms
 
+[![CI](https://github.com/Huzaifa-zuberi/DAA/actions/workflows/ci.yml/badge.svg)](https://github.com/Huzaifa-zuberi/DAA/actions/workflows/ci.yml)
 [![C#](https://img.shields.io/badge/C%23-11.0-239120?logo=csharp&logoColor=white)](https://learn.microsoft.com/dotnet/csharp)
-[![.NET](https://img.shields.io/badge/.NET-6.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com)
+[![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com)
 [![License](https://img.shields.io/badge/License-MIT-success)](LICENSE)
+![Last Commit](https://img.shields.io/github/last-commit/Huzaifa-zuberi/DAA)
+![Stars](https://img.shields.io/github/stars/Huzaifa-zuberi/DAA?style=social)
+
+**Repo:** [Huzaifa-zuberi/DAA](https://github.com/Huzaifa-zuberi/DAA)
 
 A collection of **Algorithm Design & Analysis** projects with interactive visualizations in C# .NET.
 

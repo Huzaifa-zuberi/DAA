@@ -14,7 +14,7 @@ namespace KruskalMST
         private List<Edge> mstEdges = new List<Edge>();
 
         // Drawing state
-        private Node selectedNode = null;
+        private Node selectedNode;
         private Node edgeStartNode = null;
         private bool isAddingEdge = false;
         private bool isMSTMode = false;
