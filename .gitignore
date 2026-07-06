@@ -8,3 +8,5 @@ obj/
 *.pdb
 *.cache
 *.assets.cache
+.DS_Store
+Thumbs.db
