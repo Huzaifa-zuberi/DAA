@@ -1,4 +1,4 @@
-namespace KruskalMST
+namespace MSTVisualizer
 {
     partial class Form1
     {
@@ -16,9 +16,9 @@ namespace KruskalMST
             this.SuspendLayout();
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1100, 680);
+            this.ClientSize = new System.Drawing.Size(1200, 750);
             this.Name = "Form1";
-            this.Text = "Kruskal\'s MST";
+            this.Text = "MST Visualizer";
             this.ResumeLayout(false);
         }
     }

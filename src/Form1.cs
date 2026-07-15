@@ -4,42 +4,39 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
-namespace KruskalMST
+namespace MSTVisualizer
 {
     public partial class Form1 : Form
     {
-        // Graph data
         private List<Node> nodes = new List<Node>();
         private List<Edge> edges = new List<Edge>();
         private List<Edge> mstEdges = new List<Edge>();
 
-        // Drawing state
         private Node selectedNode;
         private Node edgeStartNode = null;
         private bool isAddingEdge = false;
         private bool isMSTMode = false;
         private Point mousePos;
 
-        // UI
         private Panel canvas;
-        private Panel controlPanel;
+        private Panel topBar;
         private Button btnAddNode;
         private Button btnAddEdge;
         private Button btnRunKruskal;
         private Button btnClear;
         private Button btnReset;
         private Label lblStatus;
-        private Label lblInstructions;
+        private Label lblMSTCost;
         private ListBox lstEdges;
         private Label lblEdgeList;
-        private Label lblMSTCost;
 
         private int nodeCounter = 0;
-        private readonly Color NODE_COLOR = Color.FromArgb(70, 130, 180);
-        private readonly Color NODE_SELECTED = Color.FromArgb(255, 140, 0);
-        private readonly Color EDGE_COLOR = Color.FromArgb(80, 80, 80);
-        private readonly Color MST_EDGE_COLOR = Color.FromArgb(34, 139, 34);
-        private readonly Color NODE_BORDER = Color.FromArgb(30, 90, 140);
+        private readonly Color CANVAS_BG = Color.FromArgb(18, 18, 30);
+        private readonly Color NODE_COLOR = Color.FromArgb(120, 80, 200);
+        private readonly Color NODE_SELECTED = Color.FromArgb(0, 210, 200);
+        private readonly Color EDGE_COLOR = Color.FromArgb(100, 100, 130);
+        private readonly Color MST_EDGE_COLOR = Color.FromArgb(0, 230, 120);
+        private readonly Color NODE_BORDER = Color.FromArgb(160, 120, 240);
 
         public Form1()
         {
@@ -49,60 +46,37 @@ namespace KruskalMST
 
         private void BuildUI()
         {
-            this.Text = "Kruskal's Minimum Spanning Tree - Graph Builder";
-            this.Size = new Size(1100, 700);
-            this.MinimumSize = new Size(900, 600);
-            this.BackColor = Color.FromArgb(245, 245, 250);
+            this.Text = "MST Visualizer — Kruskal's Algorithm";
+            this.Size = new Size(1200, 750);
+            this.MinimumSize = new Size(1000, 600);
+            this.BackColor = CANVAS_BG;
             this.StartPosition = FormStartPosition.CenterScreen;
 
-            // Control Panel (left sidebar)
-            controlPanel = new Panel
+            topBar = new Panel
             {
-                Width = 220,
-                Dock = DockStyle.Left,
-                BackColor = Color.FromArgb(40, 44, 52),
-                Padding = new Padding(10)
+                Height = 60,
+                Dock = DockStyle.Top,
+                BackColor = Color.FromArgb(26, 26, 45),
             };
 
-            // Title label
             var lblTitle = new Label
             {
-                Text = "Kruskal's MST",
-                ForeColor = Color.White,
-                Font = new Font("Segoe UI", 14, FontStyle.Bold),
+                Text = "MST Visualizer",
+                ForeColor = Color.FromArgb(160, 120, 255),
+                Font = new Font("Segoe UI", 16, FontStyle.Bold),
                 AutoSize = false,
                 Width = 200,
-                Height = 40,
-                TextAlign = ContentAlignment.MiddleCenter,
-                Location = new Point(10, 15)
+                Height = 60,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Location = new Point(15, 0),
+                BackColor = Color.Transparent,
             };
 
-            var lblSubtitle = new Label
-            {
-                Text = "Graph Builder & MST Solver",
-                ForeColor = Color.FromArgb(150, 160, 180),
-                Font = new Font("Segoe UI", 8),
-                AutoSize = false,
-                Width = 200,
-                Height = 25,
-                TextAlign = ContentAlignment.MiddleCenter,
-                Location = new Point(10, 52)
-            };
-
-            var separator1 = new Panel
-            {
-                BackColor = Color.FromArgb(60, 65, 75),
-                Height = 1,
-                Width = 200,
-                Location = new Point(10, 85)
-            };
-
-            // Buttons
-            btnAddNode = CreateButton("➕  Add Node", 100, Color.FromArgb(70, 130, 180));
-            btnAddEdge = CreateButton("🔗  Add Edge", 140, Color.FromArgb(100, 149, 237));
-            btnRunKruskal = CreateButton("🌲  Run Kruskal's", 180, Color.FromArgb(34, 139, 34));
-            btnReset = CreateButton("↩  Reset View", 220, Color.FromArgb(150, 100, 50));
-            btnClear = CreateButton("🗑  Clear All", 260, Color.FromArgb(178, 34, 34));
+            btnAddNode = CreateToolbarButton("Add Node", 230, NODE_COLOR);
+            btnAddEdge = CreateToolbarButton("Add Edge", 320, Color.FromArgb(100, 150, 240));
+            btnRunKruskal = CreateToolbarButton("Run Kruskal", 410, Color.FromArgb(0, 180, 100));
+            btnReset = CreateToolbarButton("Reset MST", 510, Color.FromArgb(200, 160, 60));
+            btnClear = CreateToolbarButton("Clear All", 600, Color.FromArgb(200, 60, 60));
 
             btnAddNode.Click += BtnAddNode_Click;
             btnAddEdge.Click += BtnAddEdge_Click;
@@ -110,93 +84,76 @@ namespace KruskalMST
             btnReset.Click += BtnReset_Click;
             btnClear.Click += BtnClear_Click;
 
-            var separator2 = new Panel
+            var sepLine = new Panel
             {
-                BackColor = Color.FromArgb(60, 65, 75),
-                Height = 1,
-                Width = 200,
-                Location = new Point(10, 305)
+                Width = 1, Height = 40,
+                BackColor = Color.FromArgb(60, 60, 90),
+                Location = new Point(700, 10),
             };
 
             lblStatus = new Label
             {
-                Text = "Mode: Select",
-                ForeColor = Color.FromArgb(200, 210, 220),
-                Font = new Font("Segoe UI", 9, FontStyle.Bold),
+                Text = "Ready",
+                ForeColor = Color.FromArgb(140, 140, 180),
+                Font = new Font("Segoe UI", 9, FontStyle.Regular),
                 AutoSize = false,
-                Width = 200,
-                Height = 25,
-                Location = new Point(10, 315),
-                TextAlign = ContentAlignment.MiddleLeft
+                Width = 180, Height = 25,
+                Location = new Point(715, 8),
+                TextAlign = ContentAlignment.MiddleLeft,
             };
 
             lblMSTCost = new Label
             {
                 Text = "",
-                ForeColor = Color.FromArgb(100, 220, 100),
+                ForeColor = Color.FromArgb(0, 230, 120),
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
                 AutoSize = false,
-                Width = 200,
-                Height = 30,
-                Location = new Point(10, 340),
-                TextAlign = ContentAlignment.MiddleLeft
+                Width = 180, Height = 25,
+                Location = new Point(715, 30),
+                TextAlign = ContentAlignment.MiddleLeft,
             };
 
-            lblInstructions = new Label
-            {
-                Text = "Instructions:\n• Click canvas to add nodes\n• Select start & end node\n  to add weighted edge\n• Run Kruskal's to find MST\n• Right-click node to delete",
-                ForeColor = Color.FromArgb(150, 160, 180),
-                Font = new Font("Segoe UI", 8),
-                AutoSize = false,
-                Width = 200,
-                Height = 120,
-                Location = new Point(10, 378),
-                TextAlign = ContentAlignment.TopLeft
-            };
+            topBar.Controls.AddRange(new Control[] {
+                lblTitle, btnAddNode, btnAddEdge, btnRunKruskal, btnReset, btnClear,
+                sepLine, lblStatus, lblMSTCost
+            });
 
-            var separator3 = new Panel
+            var rightPanel = new Panel
             {
-                BackColor = Color.FromArgb(60, 65, 75),
-                Height = 1,
-                Width = 200,
-                Location = new Point(10, 505)
+                Width = 220,
+                Dock = DockStyle.Right,
+                BackColor = Color.FromArgb(26, 26, 45),
             };
 
             lblEdgeList = new Label
             {
-                Text = "Edge List:",
-                ForeColor = Color.FromArgb(200, 210, 220),
-                Font = new Font("Segoe UI", 9, FontStyle.Bold),
+                Text = "Edge List",
+                ForeColor = Color.FromArgb(160, 140, 220),
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
                 AutoSize = false,
-                Width = 200,
-                Height = 20,
-                Location = new Point(10, 515)
+                Width = 200, Height = 25,
+                Location = new Point(10, 15),
+                TextAlign = ContentAlignment.MiddleLeft,
             };
 
             lstEdges = new ListBox
             {
-                Location = new Point(10, 538),
+                Location = new Point(10, 45),
                 Width = 200,
-                Height = 120,
-                BackColor = Color.FromArgb(55, 60, 70),
-                ForeColor = Color.FromArgb(200, 220, 200),
-                Font = new Font("Consolas", 8),
-                BorderStyle = BorderStyle.None
+                Height = 660,
+                BackColor = Color.FromArgb(30, 30, 50),
+                ForeColor = Color.FromArgb(180, 210, 180),
+                Font = new Font("Consolas", 9),
+                BorderStyle = BorderStyle.None,
             };
 
-            controlPanel.Controls.AddRange(new Control[] {
-                lblTitle, lblSubtitle, separator1,
-                btnAddNode, btnAddEdge, btnRunKruskal, btnReset, btnClear,
-                separator2, lblStatus, lblMSTCost, lblInstructions,
-                separator3, lblEdgeList, lstEdges
-            });
+            rightPanel.Controls.AddRange(new Control[] { lblEdgeList, lstEdges });
 
-            // Canvas
             canvas = new Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = Color.FromArgb(250, 250, 255),
-                Cursor = Cursors.Cross
+                BackColor = CANVAS_BG,
+                Cursor = Cursors.Cross,
             };
             canvas.Paint += Canvas_Paint;
             canvas.MouseClick += Canvas_MouseClick;
@@ -204,128 +161,102 @@ namespace KruskalMST
             canvas.MouseDown += Canvas_MouseDown;
 
             this.Controls.Add(canvas);
-            this.Controls.Add(controlPanel);
+            this.Controls.Add(rightPanel);
+            this.Controls.Add(topBar);
         }
 
-        private Button CreateButton(string text, int y, Color color)
+        private Button CreateToolbarButton(string text, int x, Color accent)
         {
             var btn = new Button
             {
                 Text = text,
-                Location = new Point(10, y),
-                Width = 200,
-                Height = 35,
+                Location = new Point(x, 12),
+                Width = 80,
+                Height = 36,
                 FlatStyle = FlatStyle.Flat,
-                BackColor = color,
+                BackColor = Color.FromArgb(40, 40, 65),
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 9, FontStyle.Bold),
+                Font = new Font("Segoe UI", 8, FontStyle.Bold),
                 Cursor = Cursors.Hand,
-                TextAlign = ContentAlignment.MiddleLeft,
-                Padding = new Padding(5, 0, 0, 0)
+                FlatAppearance = { BorderSize = 1, BorderColor = accent },
             };
-            btn.FlatAppearance.BorderSize = 0;
-            btn.FlatAppearance.MouseOverBackColor = ControlPaint.Light(color, 0.2f);
+            btn.Paint += (s, e) =>
+            {
+                var b = s as Button;
+                var g = e.Graphics;
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                using (var pen = new Pen(accent, 1))
+                    g.DrawRectangle(pen, 1, 1, b.Width - 3, b.Height - 3);
+            };
             return btn;
         }
 
-        // ─── Button Handlers ───────────────────────────────────────────────────
-
         private void BtnAddNode_Click(object sender, EventArgs e)
         {
-            isAddingEdge = false;
-            edgeStartNode = null;
-            selectedNode = null;
+            isAddingEdge = false; edgeStartNode = null; selectedNode = null;
             canvas.Cursor = Cursors.Cross;
-            lblStatus.Text = "Mode: Add Node";
+            lblStatus.Text = "Mode: Add Node — click canvas";
             canvas.Invalidate();
         }
 
         private void BtnAddEdge_Click(object sender, EventArgs e)
         {
-            isAddingEdge = true;
-            edgeStartNode = null;
-            selectedNode = null;
+            isAddingEdge = true; edgeStartNode = null; selectedNode = null;
             canvas.Cursor = Cursors.Hand;
-            lblStatus.Text = "Mode: Add Edge (click source)";
+            lblStatus.Text = "Mode: Add Edge — click source node";
             canvas.Invalidate();
         }
 
         private void BtnRunKruskal_Click(object sender, EventArgs e)
         {
             if (nodes.Count < 2)
-            {
-                MessageBox.Show("Please add at least 2 nodes.", "Not Enough Nodes", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
+            { MessageBox.Show("Add at least 2 nodes.", "No Nodes", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
             if (edges.Count == 0)
-            {
-                MessageBox.Show("Please add at least one edge.", "No Edges", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
+            { MessageBox.Show("Add at least one edge.", "No Edges", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
 
             mstEdges = KruskalAlgorithm();
             isMSTMode = true;
-
             int totalCost = 0;
             foreach (var e2 in mstEdges) totalCost += e2.Weight;
-            lblMSTCost.Text = $"MST Cost: {totalCost}";
-            lblStatus.Text = $"MST Found! ({mstEdges.Count} edges)";
-
+            lblMSTCost.Text = $"MST Cost: {totalCost}  |  Edges: {mstEdges.Count}";
+            lblStatus.Text = "MST computed — green edges highlight the tree";
             UpdateEdgeList();
             canvas.Invalidate();
         }
 
         private void BtnReset_Click(object sender, EventArgs e)
         {
-            isMSTMode = false;
-            mstEdges.Clear();
-            lblMSTCost.Text = "";
-            lblStatus.Text = "Mode: Select";
-            UpdateEdgeList();
-            canvas.Invalidate();
+            isMSTMode = false; mstEdges.Clear();
+            lblMSTCost.Text = ""; lblStatus.Text = "Ready";
+            UpdateEdgeList(); canvas.Invalidate();
         }
 
         private void BtnClear_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Clear all nodes and edges?", "Confirm Clear",
+            if (MessageBox.Show("Clear all nodes and edges?", "Confirm",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                nodes.Clear();
-                edges.Clear();
-                mstEdges.Clear();
-                nodeCounter = 0;
-                isMSTMode = false;
-                isAddingEdge = false;
-                edgeStartNode = null;
-                selectedNode = null;
-                lblMSTCost.Text = "";
-                lblStatus.Text = "Mode: Select";
-                UpdateEdgeList();
-                canvas.Invalidate();
+                nodes.Clear(); edges.Clear(); mstEdges.Clear(); nodeCounter = 0;
+                isMSTMode = false; isAddingEdge = false; edgeStartNode = null; selectedNode = null;
+                lblMSTCost.Text = ""; lblStatus.Text = "Ready";
+                UpdateEdgeList(); canvas.Invalidate();
             }
         }
 
-        // ─── Canvas Events ─────────────────────────────────────────────────────
-
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
-        {
-            mousePos = e.Location;
-            if (isAddingEdge && edgeStartNode != null)
-                canvas.Invalidate();
-        }
+        { mousePos = e.Location; if (isAddingEdge && edgeStartNode != null) canvas.Invalidate(); }
 
         private void Canvas_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {
-                Node hit = HitTestNode(e.Location);
+                var hit = HitTestNode(e.Location);
                 if (hit != null)
                 {
                     edges.RemoveAll(ed => ed.Source == hit || ed.Target == hit);
                     nodes.Remove(hit);
                     if (isMSTMode) { isMSTMode = false; mstEdges.Clear(); lblMSTCost.Text = ""; }
-                    UpdateEdgeList();
-                    canvas.Invalidate();
+                    UpdateEdgeList(); canvas.Invalidate();
                 }
             }
         }
@@ -333,12 +264,10 @@ namespace KruskalMST
         private void Canvas_MouseClick(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Left) return;
-
-            Node hit = HitTestNode(e.Location);
+            var hit = HitTestNode(e.Location);
 
             if (!isAddingEdge)
             {
-                // Add node mode
                 if (hit == null)
                 {
                     string name = ((char)('A' + (nodeCounter % 26))).ToString();
@@ -346,15 +275,12 @@ namespace KruskalMST
                     nodes.Add(new Node(e.X, e.Y, name));
                     nodeCounter++;
                     if (isMSTMode) { isMSTMode = false; mstEdges.Clear(); lblMSTCost.Text = ""; }
-                    UpdateEdgeList();
-                    canvas.Invalidate();
+                    UpdateEdgeList(); canvas.Invalidate();
                 }
             }
             else
             {
-                // Add edge mode
                 if (hit == null) return;
-
                 if (edgeStartNode == null)
                 {
                     edgeStartNode = hit;
@@ -364,29 +290,18 @@ namespace KruskalMST
                 else
                 {
                     if (edgeStartNode == hit)
-                    {
-                        edgeStartNode = null;
-                        lblStatus.Text = "Mode: Add Edge (click source)";
-                        canvas.Invalidate();
-                        return;
-                    }
+                    { edgeStartNode = null; lblStatus.Text = "Mode: Add Edge — click source"; canvas.Invalidate(); return; }
 
-                    // Check duplicate
                     bool exists = edges.Exists(ed =>
                         (ed.Source == edgeStartNode && ed.Target == hit) ||
                         (ed.Source == hit && ed.Target == edgeStartNode));
-
                     if (exists)
                     {
-                        MessageBox.Show("An edge between these nodes already exists.", "Duplicate Edge",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        edgeStartNode = null;
-                        lblStatus.Text = "Mode: Add Edge (click source)";
-                        canvas.Invalidate();
-                        return;
+                        MessageBox.Show("Edge already exists.", "Duplicate", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        edgeStartNode = null; lblStatus.Text = "Mode: Add Edge — click source";
+                        canvas.Invalidate(); return;
                     }
 
-                    // Ask for weight
                     using (var dlg = new EdgeWeightDialog(edgeStartNode.Label, hit.Label))
                     {
                         if (dlg.ShowDialog() == DialogResult.OK)
@@ -396,15 +311,12 @@ namespace KruskalMST
                             UpdateEdgeList();
                         }
                     }
-
                     edgeStartNode = null;
-                    lblStatus.Text = "Mode: Add Edge (click source)";
+                    lblStatus.Text = "Mode: Add Edge — click source";
                     canvas.Invalidate();
                 }
             }
         }
-
-        // ─── Drawing ───────────────────────────────────────────────────────────
 
         private void Canvas_Paint(object sender, PaintEventArgs e)
         {
@@ -413,33 +325,27 @@ namespace KruskalMST
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             DrawGrid(g);
-
-            // Draw all edges
             foreach (var edge in edges)
             {
                 bool inMST = isMSTMode && mstEdges.Contains(edge);
                 DrawEdge(g, edge, inMST);
             }
-
-            // Draw rubber-band line when adding edge
             if (isAddingEdge && edgeStartNode != null)
             {
-                using (var pen = new Pen(Color.OrangeRed, 2) { DashStyle = DashStyle.Dash })
+                using (var pen = new Pen(NODE_SELECTED, 2) { DashStyle = DashStyle.Dash })
                     g.DrawLine(pen, edgeStartNode.X, edgeStartNode.Y, mousePos.X, mousePos.Y);
             }
-
-            // Draw nodes
             foreach (var node in nodes)
                 DrawNode(g, node);
         }
 
         private void DrawGrid(Graphics g)
         {
-            using (var pen = new Pen(Color.FromArgb(235, 235, 245), 1))
+            using (var pen = new Pen(Color.FromArgb(25, 25, 42), 1))
             {
-                for (int x = 0; x < canvas.Width; x += 30)
+                for (int x = 0; x < canvas.Width; x += 40)
                     g.DrawLine(pen, x, 0, x, canvas.Height);
-                for (int y = 0; y < canvas.Height; y += 30)
+                for (int y = 0; y < canvas.Height; y += 40)
                     g.DrawLine(pen, 0, y, canvas.Width, y);
             }
         }
@@ -448,35 +354,30 @@ namespace KruskalMST
         {
             Color lineColor = isInMST ? MST_EDGE_COLOR : EDGE_COLOR;
             float lineWidth = isInMST ? 3.5f : 1.8f;
-
-            Point src = new Point(edge.Source.X, edge.Source.Y);
-            Point tgt = new Point(edge.Target.X, edge.Target.Y);
+            var src = new Point(edge.Source.X, edge.Source.Y);
+            var tgt = new Point(edge.Target.X, edge.Target.Y);
 
             using (var pen = new Pen(lineColor, lineWidth))
             {
                 pen.CustomEndCap = new AdjustableArrowCap(5, 5);
-                // Shorten line so arrow tip meets node boundary
                 var (s, t) = ShortenLine(src, tgt, 22);
                 g.DrawLine(pen, s, t);
             }
 
-            // Weight label at midpoint
             float mx = (src.X + tgt.X) / 2f;
             float my = (src.Y + tgt.Y) / 2f;
-
             string wLabel = edge.Weight.ToString();
-            var font = new Font("Segoe UI", 9, FontStyle.Bold);
-            var sz = g.MeasureString(wLabel, font);
-
-            var rect = new RectangleF(mx - sz.Width / 2 - 4, my - sz.Height / 2 - 2, sz.Width + 8, sz.Height + 4);
-            using (var bgBrush = new SolidBrush(isInMST ? Color.FromArgb(200, 220, 255, 220) : Color.FromArgb(200, 255, 255, 255)))
-                g.FillRectangle(bgBrush, rect);
-
-            using (var border = new Pen(isInMST ? MST_EDGE_COLOR : Color.LightGray, 1))
-                g.DrawRectangle(border, rect.X, rect.Y, rect.Width, rect.Height);
-
-            using (var br = new SolidBrush(isInMST ? Color.DarkGreen : Color.FromArgb(60, 60, 80)))
-                g.DrawString(wLabel, font, br, mx - sz.Width / 2, my - sz.Height / 2);
+            using (var font = new Font("Segoe UI", 9, FontStyle.Bold))
+            {
+                var sz = g.MeasureString(wLabel, font);
+                var rect = new RectangleF(mx - sz.Width / 2 - 4, my - sz.Height / 2 - 2, sz.Width + 8, sz.Height + 4);
+                using (var bgBrush = new SolidBrush(isInMST ? Color.FromArgb(200, 0, 40, 20) : Color.FromArgb(200, 20, 20, 40)))
+                    g.FillRectangle(bgBrush, rect);
+                using (var border = new Pen(isInMST ? MST_EDGE_COLOR : Color.FromArgb(60, 60, 90), 1))
+                    g.DrawRectangle(border, rect.X, rect.Y, rect.Width, rect.Height);
+                using (var br = new SolidBrush(isInMST ? Color.FromArgb(0, 230, 120) : Color.FromArgb(150, 150, 200)))
+                    g.DrawString(wLabel, font, br, mx - sz.Width / 2, my - sz.Height / 2);
+            }
         }
 
         private void DrawNode(Graphics g, Node node)
@@ -484,35 +385,29 @@ namespace KruskalMST
             bool isStart = node == edgeStartNode;
             int r = 22;
 
-            // Shadow
-            using (var shadow = new SolidBrush(Color.FromArgb(40, 0, 0, 0)))
-                g.FillEllipse(shadow, node.X - r + 3, node.Y - r + 3, r * 2, r * 2);
+            using (var shadow = new SolidBrush(Color.FromArgb(60, 0, 0, 0)))
+                g.FillEllipse(shadow, node.X - r + 4, node.Y - r + 4, r * 2, r * 2);
 
-            // Fill
             Color fill = isStart ? NODE_SELECTED : NODE_COLOR;
             using (var br = new SolidBrush(fill))
                 g.FillEllipse(br, node.X - r, node.Y - r, r * 2, r * 2);
 
-            // Border
-            using (var pen = new Pen(isStart ? Color.DarkOrange : NODE_BORDER, 2.5f))
+            using (var pen = new Pen(isStart ? Color.FromArgb(0, 230, 220) : NODE_BORDER, 2.5f))
                 g.DrawEllipse(pen, node.X - r, node.Y - r, r * 2, r * 2);
 
-            // Label
-            var font = new Font("Segoe UI", 10, FontStyle.Bold);
-            var sz = g.MeasureString(node.Label, font);
-            using (var br = new SolidBrush(Color.White))
-                g.DrawString(node.Label, font, br, node.X - sz.Width / 2, node.Y - sz.Height / 2);
+            using (var font = new Font("Segoe UI", 10, FontStyle.Bold))
+            {
+                var sz = g.MeasureString(node.Label, font);
+                using (var br = new SolidBrush(Color.White))
+                    g.DrawString(node.Label, font, br, node.X - sz.Width / 2, node.Y - sz.Height / 2);
+            }
         }
-
-        // ─── Kruskal's Algorithm ───────────────────────────────────────────────
 
         private List<Edge> KruskalAlgorithm()
         {
-            // Sort edges by weight
             var sorted = new List<Edge>(edges);
             sorted.Sort((a, b) => a.Weight.CompareTo(b.Weight));
 
-            // Union-Find
             var parent = new Dictionary<Node, Node>();
             var rank = new Dictionary<Node, int>();
             foreach (var n in nodes) { parent[n] = n; rank[n] = 0; }
@@ -527,8 +422,8 @@ namespace KruskalMST
             {
                 var ra = Find(a); var rb = Find(b);
                 if (ra == rb) return;
-                if (rank[ra] < rank[rb]) { parent[ra] = rb; }
-                else if (rank[ra] > rank[rb]) { parent[rb] = ra; }
+                if (rank[ra] < rank[rb]) parent[ra] = rb;
+                else if (rank[ra] > rank[rb]) parent[rb] = ra;
                 else { parent[rb] = ra; rank[ra]++; }
             }
 
@@ -544,8 +439,6 @@ namespace KruskalMST
             }
             return mst;
         }
-
-        // ─── Helpers ───────────────────────────────────────────────────────────
 
         private Node HitTestNode(Point p)
         {
@@ -572,7 +465,7 @@ namespace KruskalMST
             lstEdges.Items.Clear();
             var list = isMSTMode ? mstEdges : edges;
             foreach (var e in list)
-                lstEdges.Items.Add($"{e.Source.Label}→{e.Target.Label}  w={e.Weight}" + (isMSTMode ? " ✓" : ""));
+                lstEdges.Items.Add($"{e.Source.Label} → {e.Target.Label}  w={e.Weight}" + (isMSTMode ? " ✓" : ""));
         }
     }
 }

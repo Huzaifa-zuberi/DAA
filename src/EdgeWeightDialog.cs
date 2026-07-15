@@ -2,7 +2,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace KruskalMST
+namespace MSTVisualizer
 {
     public class EdgeWeightDialog : Form
     {

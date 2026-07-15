@@ -1,4 +1,4 @@
-namespace KruskalMST
+namespace MSTVisualizer
 {
     public class Edge
     {

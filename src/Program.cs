@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Forms;
 
-namespace KruskalMST
+namespace MSTVisualizer
 {
     internal static class Program
     {
